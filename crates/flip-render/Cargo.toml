@@ -1,0 +1,40 @@
+[package]
+name = "flip-render"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+description = "Format renderers for flip (Document IR → output)"
+
+[dependencies]
+flip-ir = { path = "../flip-ir" }
+anyhow = { workspace = true }
+thiserror = { workspace = true }
+
+# PDF generation
+printpdf = "0.8"
+
+# DOCX generation
+docx-rs = "0.4"
+
+# XLSX generation
+umya-spreadsheet = "2"
+
+# Markdown generation
+pulldown-cmark = "0.13"
+
+# CSV output
+csv = "1"
+
+# Image conversion
+image = { version = "0.25", default-features = false, features = ["jpeg", "png", "gif", "webp", "bmp", "tiff", "serde"] }
+
+# EPUB generation
+epub-builder = "0.8"
+
+# JSON / YAML output
+serde_json = { workspace = true }
+serde_yaml = "0.9"
+serde = { workspace = true }
+
+# ZIP (for ODT/ODS/ODP/PPTX)
+zip = { version = "2", default-features = false, features = ["deflate"] }

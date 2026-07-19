@@ -1,0 +1,10 @@
+[package]
+name = "flip-ir"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+description = "Document intermediate representation for flip"
+
+[dependencies]
+serde = { workspace = true }
+thiserror = { workspace = true }

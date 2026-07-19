@@ -1,0 +1,43 @@
+[package]
+name = "flip-parse"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+description = "Format parsers for flip (input → Document IR)"
+
+[dependencies]
+flip-ir = { path = "../flip-ir" }
+anyhow = { workspace = true }
+thiserror = { workspace = true }
+
+# PDF
+pdf_oxide = "0.3"
+
+# Office formats - use manual ZIP+XML parsing
+zip = { version = "2", default-features = false, features = ["deflate"] }
+
+# Markdown parsing
+pulldown-cmark = "0.13"
+
+# CSV
+csv = "1"
+
+# Image parsing
+image = { version = "0.25", default-features = false, features = ["jpeg", "png", "gif", "webp", "bmp", "tiff"] }
+
+# SVG
+svg = "0.18"
+
+# JSON / YAML
+serde_json = { workspace = true }
+serde_yaml = "0.9"
+serde = { workspace = true }
+
+# Plain text / encoding
+encoding_rs = "0.8"
+
+# MIME detection
+mime_guess = "2"
+
+# File system
+walkdir = "2"

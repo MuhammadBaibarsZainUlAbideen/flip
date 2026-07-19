@@ -1,0 +1,25 @@
+[package]
+name = "flip"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+description = "Universal offline file converter — flip between 20+ formats"
+repository = "https://github.com/flip-cli/flip"
+homepage = "https://flip.dev"
+keywords = ["converter", "cli", "offline", "privacy", "document"]
+categories = ["command-line-utilities", "encoding"]
+
+[[bin]]
+name = "flip"
+path = "src/main.rs"
+
+[dependencies]
+flip-ir = { path = "../flip-ir" }
+flip-parse = { path = "../flip-parse" }
+flip-render = { path = "../flip-render" }
+anyhow = { workspace = true }
+clap = { version = "4", features = ["derive"] }
+indicatif = "0.17"
+colored = "2"
+glob = "0.3"
+atty = "0.2"

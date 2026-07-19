@@ -1,0 +1,21 @@
+[workspace]
+members = [
+    "crates/flip-ir",
+    "crates/flip-parse",
+    "crates/flip-render",
+    "crates/flip-cli",
+]
+resolver = "2"
+
+[workspace.package]
+version = "0.1.0"
+edition = "2021"
+license = "MIT"
+authors = ["flip-cli contributors"]
+description = "Universal offline file converter — flip between 20+ formats"
+
+[workspace.dependencies]
+anyhow = "1"
+thiserror = "2"
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"

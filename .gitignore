@@ -1,0 +1,37 @@
+# Build artifacts
+target/
+
+# Cargo local config (machine-specific linker settings)
+.cargo/
+
+# Editor files
+*.swp
+*.swo
+*~
+*.bak
+.vscode/
+.idea/
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Test output files
+test_*.html
+test_*.json
+test_*.txt
+test_*.md
+test_*.csv
+test_*.yaml
+test_*.svg
+test_*.tex
+test_*.pdf
+test_*.docx
+test_*.xlsx
+test_*.pptx
+test_*.odt
+test_*.ods
+test_*.odp
+test_*.epub
+test_output*
+tmp_*.txt
