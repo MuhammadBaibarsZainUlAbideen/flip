@@ -123,22 +123,24 @@ fn find_closing_tag(text: &str, start: usize, tag: &str) -> Option<usize> {
     let mut i = start;
 
     while i < text.len() {
-        if text[i..].starts_with(&open_pattern) || text[i..].starts_with(&open_exact) {
+        let slice = &text[i..];
+
+        if slice.starts_with(&open_pattern) || slice.starts_with(&open_exact) {
             depth += 1;
-            i += 1;
+            i += open_pattern.len();
             continue;
         }
 
-        if text[i..].starts_with(&close_pattern) {
+        if slice.starts_with(&close_pattern) {
             depth -= 1;
             if depth <= 0 {
                 return Some(i + close_pattern.len());
             }
-            i += 1;
+            i += close_pattern.len();
             continue;
         }
 
-        i += 1;
+        i += slice.chars().next().unwrap_or('\0').len_utf8();
     }
 
     None
