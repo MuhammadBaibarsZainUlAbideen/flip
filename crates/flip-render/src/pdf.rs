@@ -6,12 +6,37 @@ use printpdf::*;
 
 const PAGE_WIDTH_MM: f32 = 210.0;
 const PAGE_HEIGHT_MM: f32 = 297.0;
-const MARGIN_MM: f32 = 20.0;
+const MARGIN_MM: f32 = 15.0;
 const USABLE_WIDTH_MM: f32 = PAGE_WIDTH_MM - 2.0 * MARGIN_MM;
 
 struct StyledSegment {
     text: String,
     font: BuiltinFont,
+}
+
+fn sanitize(text: &str) -> String {
+    let mut out = String::with_capacity(text.len());
+    for ch in text.chars() {
+        let cp = ch as u32;
+        if cp <= 0x7F || (cp >= 0xA0 && cp <= 0xFF) {
+            out.push(ch);
+        } else if cp == 0x2013 {
+            out.push('-');
+        } else if cp == 0x2014 {
+            out.push_str("--");
+        } else if cp == 0x2018 || cp == 0x2019 {
+            out.push('\'');
+        } else if cp == 0x201C || cp == 0x201D {
+            out.push('"');
+        } else if cp == 0x2026 {
+            out.push_str("...");
+        } else if cp == 0x2022 || cp == 0x25CF || cp == 0x25CB {
+            out.push('-');
+        } else {
+            out.push('?');
+        }
+    }
+    out
 }
 
 fn flatten_inlines(inlines: &[Inline]) -> Vec<StyledSegment> {
@@ -24,17 +49,24 @@ fn flatten_inner(inlines: &[Inline], font: BuiltinFont, segs: &mut Vec<StyledSeg
     for inline in inlines {
         match inline {
             Inline::Text(t) if !t.is_empty() => {
-                segs.push(StyledSegment { text: t.clone(), font });
+                let sanitized = sanitize(t);
+                if !sanitized.is_empty() {
+                    segs.push(StyledSegment { text: sanitized, font });
+                }
             }
             Inline::Bold(inner) => flatten_inner(inner, BuiltinFont::HelveticaBold, segs),
             Inline::Italic(inner) => flatten_inner(inner, BuiltinFont::HelveticaOblique, segs),
             Inline::Strikethrough(inner) => flatten_inner(inner, font, segs),
             Inline::Code(t) if !t.is_empty() => {
-                segs.push(StyledSegment { text: t.clone(), font: BuiltinFont::Courier });
+                let sanitized = sanitize(t);
+                if !sanitized.is_empty() {
+                    segs.push(StyledSegment { text: sanitized, font: BuiltinFont::Courier });
+                }
             }
             Inline::Link { text, .. } => flatten_inner(text, BuiltinFont::HelveticaOblique, segs),
             Inline::Image { alt, .. } => {
-                segs.push(StyledSegment { text: format!("[{}]", alt), font });
+                let sanitized = sanitize(alt);
+                segs.push(StyledSegment { text: format!("[{}]", sanitized), font });
             }
             Inline::Superscript(inner) | Inline::Subscript(inner) => {
                 flatten_inner(inner, font, segs);
@@ -114,7 +146,7 @@ fn split_segs_to_lines(segs: &[StyledSegment], plain_lines: &[String]) -> Vec<Ve
 
         result.push(line_segs);
         char_pos = line_end;
-        if line_end >= total_len {
+        if char_pos >= total_len {
             break;
         }
     }
@@ -141,23 +173,23 @@ fn emit_styled(ops: &mut Vec<Op>, segs: &[StyledSegment], x: f32, y: f32, font_s
     ops.push(Op::EndTextSection);
 }
 
-fn render_paragraph(
-    ops: &mut Vec<Op>, pages: &mut Vec<PdfPage>, y_pos: &mut f32,
-    inlines: &[Inline], font_size: f32, line_height: f32, indent: f32,
-) {
-    let segs = flatten_inlines(inlines);
-    let plain = segments_to_plain(&segs);
-    let lines = wrap_plain(&plain, font_size, USABLE_WIDTH_MM);
-    let styled_lines = split_segs_to_lines(&segs, &lines);
+fn estimate_text_width_mm(text: &str, font_size: f32) -> f32 {
+    let char_width = font_size * 0.18;
+    text.len() as f32 * char_width
+}
 
-    for line_segs in &styled_lines {
-        if *y_pos < MARGIN_MM + 10.0 {
-            pages.push(PdfPage::new(Mm(PAGE_WIDTH_MM), Mm(PAGE_HEIGHT_MM), std::mem::take(ops)));
-            *y_pos = PAGE_HEIGHT_MM - MARGIN_MM;
-        }
-        emit_styled(ops, line_segs, MARGIN_MM + indent, *y_pos, font_size);
-        *y_pos -= line_height;
-    }
+fn draw_underline(ops: &mut Vec<Op>, x: f32, y: f32, width_mm: f32) {
+    let underline_y = y - 1.0;
+    let line = Line {
+        points: vec![
+            LinePoint { p: Point { x: Mm(x).into(), y: Mm(underline_y).into() }, bezier: false },
+            LinePoint { p: Point { x: Mm(x + width_mm).into(), y: Mm(underline_y).into() }, bezier: false },
+        ],
+        is_closed: false,
+    };
+    ops.push(Op::SetOutlineColor { col: Color::Rgb(Rgb { r: 0.0, g: 0.0, b: 0.0, icc_profile: None }) });
+    ops.push(Op::SetOutlineThickness { pt: Pt(0.5) });
+    ops.push(Op::DrawLine { line });
 }
 
 fn ensure_page(ops: &mut Vec<Op>, pages: &mut Vec<PdfPage>, y_pos: &mut f32, needed: f32) {
@@ -182,11 +214,17 @@ pub fn render_bytes(doc: &Document) -> Result<Vec<u8>> {
     for block in &doc.blocks {
         match block {
             Block::Heading { level, content } => {
-                let font_size = match level {
-                    1 => 18.0, 2 => 14.0, 3 => 12.0, _ => 11.0,
+                let (font_size, is_underlined) = match level {
+                    1 => (14.0, true),
+                    2 => (11.0, true),
+                    3 => (10.5, true),
+                    _ => (10.0, true),
                 };
-                let lh = font_size * 1.3;
-                ensure_page(&mut ops, &mut pages, &mut y, lh + 2.0);
+                let lh = font_size * 0.45;
+                let gap_before = if *level <= 2 { 4.0 } else { 2.0 };
+                let gap_after = 2.0;
+                y -= gap_before;
+                ensure_page(&mut ops, &mut pages, &mut y, lh + gap_after);
                 let segs = flatten_inlines(content);
                 let styled: Vec<StyledSegment> = segs.into_iter()
                     .map(|s| StyledSegment { font: BuiltinFont::HelveticaBold, ..s })
@@ -194,16 +232,34 @@ pub fn render_bytes(doc: &Document) -> Result<Vec<u8>> {
                 let plain = segments_to_plain(&styled);
                 let lines = wrap_plain(&plain, font_size, USABLE_WIDTH_MM);
                 let styled_lines = split_segs_to_lines(&styled, &lines);
+                let mut total_text_width: f32 = 0.0;
                 for line_segs in &styled_lines {
                     ensure_page(&mut ops, &mut pages, &mut y, lh);
                     emit_styled(&mut ops, line_segs, MARGIN_MM, y, font_size);
+                    let line_text = segments_to_plain(line_segs);
+                    let w = estimate_text_width_mm(&line_text, font_size);
+                    if w > total_text_width {
+                        total_text_width = w;
+                    }
                     y -= lh;
                 }
-                y -= 2.0;
+                if is_underlined {
+                    draw_underline(&mut ops, MARGIN_MM, y + lh, total_text_width.min(USABLE_WIDTH_MM));
+                }
+                y -= gap_after;
             }
             Block::Paragraph(inlines) => {
-                ensure_page(&mut ops, &mut pages, &mut y, 12.0);
-                render_paragraph(&mut ops, &mut pages, &mut y, inlines, 10.0, 13.0, 0.0);
+                let font_size = 9.5;
+                let lh = font_size * 0.42;
+                let segs = flatten_inlines(inlines);
+                let plain = segments_to_plain(&segs);
+                let lines = wrap_plain(&plain, font_size, USABLE_WIDTH_MM);
+                let styled_lines = split_segs_to_lines(&segs, &lines);
+                ensure_page(&mut ops, &mut pages, &mut y, lh * lines.len() as f32 + 2.0);
+                for line_segs in &styled_lines {
+                    emit_styled(&mut ops, &line_segs, MARGIN_MM, y, font_size);
+                    y -= lh;
+                }
                 y -= 1.5;
             }
             Block::Code { content, .. } => {
@@ -211,9 +267,10 @@ pub fn render_bytes(doc: &Document) -> Result<Vec<u8>> {
                 let lh = 10.0;
                 for raw_line in content.split('\n') {
                     ensure_page(&mut ops, &mut pages, &mut y, lh);
+                    let sanitized = sanitize(raw_line);
                     emit_styled(
                         &mut ops,
-                        &[StyledSegment { text: raw_line.to_string(), font: BuiltinFont::Courier }],
+                        &[StyledSegment { text: sanitized, font: BuiltinFont::Courier }],
                         MARGIN_MM + 3.0, y, font_size,
                     );
                     y -= lh;
@@ -221,29 +278,37 @@ pub fn render_bytes(doc: &Document) -> Result<Vec<u8>> {
                 y -= 3.0;
             }
             Block::Blockquote(content) => {
-                ensure_page(&mut ops, &mut pages, &mut y, 12.0);
-                render_paragraph(&mut ops, &mut pages, &mut y, content, 10.0, 13.0, 8.0);
+                let font_size = 9.5;
+                let lh = font_size * 0.42;
+                let segs = flatten_inlines(content);
+                let plain = segments_to_plain(&segs);
+                let lines = wrap_plain(&plain, font_size, USABLE_WIDTH_MM - 8.0);
+                let styled_lines = split_segs_to_lines(&segs, &lines);
+                ensure_page(&mut ops, &mut pages, &mut y, lh * lines.len() as f32 + 2.0);
+                for line_segs in &styled_lines {
+                    emit_styled(&mut ops, &line_segs, MARGIN_MM + 8.0, y, font_size);
+                    y -= lh;
+                }
                 y -= 1.5;
             }
             Block::List { items, ordered } => {
-                let font_size = 10.0;
-                let lh = 12.0;
+                let font_size = 9.5;
+                let lh = font_size * 0.42;
                 for (i, item) in items.iter().enumerate() {
-                    ensure_page(&mut ops, &mut pages, &mut y, lh);
-                    let prefix = if *ordered { format!("{}. ", i + 1) } else { "- ".to_string() };
-                    let mut segs = vec![StyledSegment { text: prefix, font: BuiltinFont::Helvetica }];
+                    let prefix = if *ordered { format!("{}. ", i + 1) } else { "\u{2022} ".to_string() };
+                    let mut segs = vec![StyledSegment { text: sanitize(&prefix), font: BuiltinFont::Helvetica }];
                     segs.extend(flatten_inlines(item));
                     let plain = segments_to_plain(&segs);
                     let lines = wrap_plain(&plain, font_size, USABLE_WIDTH_MM - 5.0);
                     let styled_lines = split_segs_to_lines(&segs, &lines);
                     for (j, line_segs) in styled_lines.iter().enumerate() {
                         ensure_page(&mut ops, &mut pages, &mut y, lh);
-                        let indent = if j == 0 { 5.0 } else { 10.0 };
+                        let indent = if j == 0 { 5.0 } else { 9.0 };
                         emit_styled(&mut ops, line_segs, MARGIN_MM + indent, y, font_size);
                         y -= lh;
                     }
                 }
-                y -= 1.5;
+                y -= 1.0;
             }
             Block::HorizontalRule => {
                 y -= 2.0;
@@ -261,7 +326,7 @@ pub fn render_bytes(doc: &Document) -> Result<Vec<u8>> {
             }
             Block::Table { headers, rows } => {
                 let font_size = 8.0;
-                let lh = 10.0;
+                let lh = 3.2;
 
                 let mut all_rows: Vec<&Vec<Vec<Inline>>> = Vec::new();
                 for h in headers { all_rows.push(h); }
@@ -276,7 +341,7 @@ pub fn render_bytes(doc: &Document) -> Result<Vec<u8>> {
 
                     let mut cell_lines: Vec<Vec<String>> = Vec::new();
                     for cell in *row {
-                        let plain: String = cell.iter().map(|i| i.plain_text()).collect();
+                        let plain: String = cell.iter().map(|i| sanitize(&i.plain_text())).collect();
                         let lines: Vec<String> = plain.split('\n')
                             .map(|s| s.trim().to_string())
                             .filter(|s| !s.is_empty())
@@ -300,30 +365,32 @@ pub fn render_bytes(doc: &Document) -> Result<Vec<u8>> {
                         y -= lh;
                     }
                 }
-                y -= 3.0;
+                y -= 1.5;
             }
             Block::Image { alt, .. } => {
-                ensure_page(&mut ops, &mut pages, &mut y, 12.0);
+                ensure_page(&mut ops, &mut pages, &mut y, 5.0);
+                let sanitized = sanitize(alt);
                 emit_styled(
                     &mut ops,
-                    &[StyledSegment { text: format!("[Image: {}]", alt), font: BuiltinFont::Helvetica }],
-                    MARGIN_MM, y, 9.0,
+                    &[StyledSegment { text: format!("[Image: {}]", sanitized), font: BuiltinFont::Helvetica }],
+                    MARGIN_MM, y, 8.0,
                 );
-                y -= 12.0;
+                y -= 5.0;
             }
             Block::TableFromCsv(text) => {
-                let font_size = 8.0;
-                let lh = 10.0;
+                let font_size = 7.0;
+                let lh = 3.0;
                 for raw_line in text.lines() {
                     ensure_page(&mut ops, &mut pages, &mut y, lh);
+                    let sanitized = sanitize(raw_line);
                     emit_styled(
                         &mut ops,
-                        &[StyledSegment { text: raw_line.to_string(), font: BuiltinFont::Courier }],
+                        &[StyledSegment { text: sanitized, font: BuiltinFont::Courier }],
                         MARGIN_MM, y, font_size,
                     );
                     y -= lh;
                 }
-                y -= 3.0;
+                y -= 1.0;
             }
         }
     }

@@ -42,3 +42,9 @@ example.tape
 test.tape
 test_frame.png
 demo.tape
+
+# Web app
+web/node_modules/
+web/.next/
+web/.env*
+web/*.tsbuildinfo
