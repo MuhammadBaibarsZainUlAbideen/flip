@@ -294,7 +294,6 @@ pub fn render_bytes(doc: &Document) -> Result<Vec<u8>> {
             Block::Table { headers, rows } => {
                 let font_size = 9.0;
                 let line_height = 12.0;
-                let col_width = 30.0f32;
 
                 let mut all_rows: Vec<&Vec<Vec<Inline>>> = Vec::new();
                 for h in headers {
@@ -303,6 +302,9 @@ pub fn render_bytes(doc: &Document) -> Result<Vec<u8>> {
                 for r in rows {
                     all_rows.push(r);
                 }
+
+                let max_cols = all_rows.iter().map(|r| r.len()).max().unwrap_or(1).max(1);
+                let col_width = USABLE_WIDTH_MM / max_cols as f32;
 
                 for row in &all_rows {
                     let mut row_lines: Vec<Vec<String>> = Vec::new();
