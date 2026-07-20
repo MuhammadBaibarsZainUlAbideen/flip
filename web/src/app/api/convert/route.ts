@@ -5,17 +5,17 @@ import { join } from "path";
 import { tmpdir } from "os";
 import { randomUUID } from "crypto";
 
-const FLIP_BIN = process.env.FLIP_BIN || "C:\\Users\\Talal\\.cargo\\bin\\flip.exe";
+const FLIP_BIN = process.env.FLIP_BIN || "flip";
 const SOFFICE_BIN = process.env.SOFFICE_BIN || findLibreOffice();
 
 function findLibreOffice(): string {
   const fs = require("fs");
   const candidates = [
-    "C:\\Program Files\\LibreOffice\\program\\soffice.exe",
-    "C:\\Program Files (x86)\\LibreOffice\\program\\soffice.exe",
     "/usr/bin/libreoffice",
     "/usr/bin/soffice",
     "/usr/local/bin/libreoffice",
+    "C:\\Program Files\\LibreOffice\\program\\soffice.exe",
+    "C:\\Program Files (x86)\\LibreOffice\\program\\soffice.exe",
   ];
   for (const p of candidates) {
     if (fs.existsSync(p)) return p;
