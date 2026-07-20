@@ -1,0 +1,4 @@
+name: BuildFailed
+
+on:
+  workflow_dispatch:
