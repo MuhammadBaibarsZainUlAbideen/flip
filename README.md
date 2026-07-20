@@ -176,6 +176,58 @@ Options:
 
 `flip` focuses on being **fast, private, and easy to install**. If you need 40+ formats or complex document features, pandoc is great. If you want a quick, lightweight converter that just works, try `flip`.
 
+## Web App
+
+A Next.js web interface is included in the `web/` directory. Upload files and convert them in your browser.
+
+### Prerequisites
+
+- [Node.js](https://nodejs.org/) 18+
+- [Rust](https://www.rust-lang.org/tools/install) (to build the flip binary)
+- [LibreOffice](https://www.libreoffice.org/) (for DOCX/ODT to PDF conversions)
+
+### Setup
+
+```bash
+# 1. Clone the repo
+git clone https://github.com/MuhammadBaibarsZainUlAbideen/flip.git
+cd flip
+
+# 2. Build the flip binary
+cargo build --release
+
+# 3. Install LibreOffice (if you need DOCX -> PDF)
+# Windows:
+winget install TheDocumentFoundation.LibreOffice
+# Ubuntu/Debian:
+sudo apt-get install libreoffice-core
+# macOS:
+brew install --cask libreoffice
+
+# 4. Install web app dependencies
+cd web
+npm install
+
+# 5. Set environment variables and run
+# Windows PowerShell:
+$env:FLIP_BIN="..\target\release\flip.exe"
+$env:SOFFICE_BIN="C:\Program Files\LibreOffice\program\soffice.exe"
+npm run dev
+
+# Linux/macOS:
+export FLIP_BIN=../target/release/flip
+export SOFFICE_BIN=/usr/bin/libreoffice
+npm run dev
+```
+
+Then open [http://localhost:3000](http://localhost:3000).
+
+### How it works
+
+The web app uses **two backends**:
+- **flip binary** for most conversions (Markdown, CSV, JSON, YAML, images, etc.)
+- **LibreOffice headless** for DOCX/ODT to PDF/HTML (Word-perfect formatting)
+
 ## Contributing
 
 Contributions are welcome! Here's how to get started:
