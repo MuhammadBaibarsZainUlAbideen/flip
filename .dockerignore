@@ -1,0 +1,47 @@
+# Build artifacts
+target/
+
+# Git
+.git/
+.github/
+
+# Node
+web/node_modules/
+web/.next/
+
+# Editor/OS
+.vscode/
+.idea/
+*.swp
+*.swo
+.DS_Store
+Thumbs.db
+
+# Test output
+test_*.html
+test_*.json
+test_*.txt
+test_*.md
+test_*.csv
+test_*.yaml
+test_*.svg
+test_*.tex
+test_*.pdf
+test_*.docx
+test_*.xlsx
+test_*.pptx
+test_*.odt
+test_*.ods
+test_*.odp
+test_*.epub
+test_output*
+tmp_*.txt
+
+# Misc
+demo.gif
+generate_demo.py
+example.tape
+test.tape
+test_frame.png
+demo.tape
+CONTRIBUTING.md
