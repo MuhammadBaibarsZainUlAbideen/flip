@@ -35,3 +35,10 @@ test_*.odp
 test_*.epub
 test_output*
 tmp_*.txt
+
+# Dev/build scripts
+generate_demo.py
+example.tape
+test.tape
+test_frame.png
+demo.tape

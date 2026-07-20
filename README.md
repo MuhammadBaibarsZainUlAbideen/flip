@@ -14,6 +14,8 @@ flip *.csv --to html
 flip presentation.pptx slides.md
 ```
 
+![flip demo](demo.gif)
+
 </div>
 
 ---
