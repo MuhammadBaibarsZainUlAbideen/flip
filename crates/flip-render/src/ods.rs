@@ -57,10 +57,9 @@ pub fn render(doc: &Document, path: &Path) -> Result<()> {
 
     let file = std::fs::File::create(path)?;
     let mut zip = zip::ZipWriter::new(file);
-    let options = SimpleFileOptions::default()
-        .compression_method(zip::CompressionMethod::Deflated);
+    let options = SimpleFileOptions::default().compression_method(zip::CompressionMethod::Deflated);
 
-    zip.start_file("mimetype", options.clone())?;
+    zip.start_file("mimetype", options)?;
     zip.write_all(b"application/vnd.oasis.opendocument.spreadsheet")?;
 
     zip.start_file("content.xml", options)?;

@@ -45,9 +45,11 @@ pub fn render_bytes(doc: &Document) -> Result<Vec<u8>> {
             Block::Code { content, .. } => {
                 let mut para = docx_rs::Paragraph::new();
                 para = para.add_run(
-                    docx_rs::Run::new()
-                        .add_text(content)
-                        .fonts(docx_rs::RunFonts::new().ascii("Courier New").hi_ansi("Courier New")),
+                    docx_rs::Run::new().add_text(content).fonts(
+                        docx_rs::RunFonts::new()
+                            .ascii("Courier New")
+                            .hi_ansi("Courier New"),
+                    ),
                 );
                 builder = builder.add_paragraph(para);
             }
@@ -64,8 +66,7 @@ pub fn render_bytes(doc: &Document) -> Result<Vec<u8>> {
                     let cells: Vec<docx_rs::TableCell> = row
                         .iter()
                         .map(|cell| {
-                            let text: String =
-                                cell.iter().map(|i| i.plain_text()).collect();
+                            let text: String = cell.iter().map(|i| i.plain_text()).collect();
                             docx_rs::TableCell::new().add_paragraph(
                                 docx_rs::Paragraph::new()
                                     .add_run(docx_rs::Run::new().add_text(text)),
@@ -78,16 +79,13 @@ pub fn render_bytes(doc: &Document) -> Result<Vec<u8>> {
             }
             Block::HorizontalRule => {
                 builder = builder.add_paragraph(
-                    docx_rs::Paragraph::new()
-                        .add_run(docx_rs::Run::new().add_text("─".repeat(50))),
+                    docx_rs::Paragraph::new().add_run(docx_rs::Run::new().add_text("─".repeat(50))),
                 );
             }
             Block::Image { alt, src, .. } => {
                 let mut para = docx_rs::Paragraph::new();
-                para = para.add_run(docx_rs::Run::new().add_text(format!(
-                    "[Image: {} - {}]",
-                    alt, src
-                )));
+                para = para
+                    .add_run(docx_rs::Run::new().add_text(format!("[Image: {} - {}]", alt, src)));
                 builder = builder.add_paragraph(para);
             }
             Block::TableFromCsv(text) => {
@@ -104,10 +102,7 @@ pub fn render_bytes(doc: &Document) -> Result<Vec<u8>> {
     Ok(cursor.into_inner())
 }
 
-fn add_inlines_to_para(
-    mut para: docx_rs::Paragraph,
-    inlines: &[Inline],
-) -> docx_rs::Paragraph {
+fn add_inlines_to_para(mut para: docx_rs::Paragraph, inlines: &[Inline]) -> docx_rs::Paragraph {
     for inline in inlines {
         match inline {
             Inline::Text(text) => {
@@ -133,9 +128,11 @@ fn add_inlines_to_para(
             }
             Inline::Code(text) => {
                 para = para.add_run(
-                    docx_rs::Run::new()
-                        .add_text(text)
-                        .fonts(docx_rs::RunFonts::new().ascii("Courier New").hi_ansi("Courier New")),
+                    docx_rs::Run::new().add_text(text).fonts(
+                        docx_rs::RunFonts::new()
+                            .ascii("Courier New")
+                            .hi_ansi("Courier New"),
+                    ),
                 );
             }
             Inline::Link { text, .. } => {

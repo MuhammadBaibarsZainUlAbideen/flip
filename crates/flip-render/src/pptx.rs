@@ -8,8 +8,7 @@ use zip::write::SimpleFileOptions;
 pub fn render(doc: &Document, path: &Path) -> Result<()> {
     let file = std::fs::File::create(path)?;
     let mut zip = zip::ZipWriter::new(file);
-    let options = SimpleFileOptions::default()
-        .compression_method(zip::CompressionMethod::Deflated);
+    let options = SimpleFileOptions::default().compression_method(zip::CompressionMethod::Deflated);
 
     write_content_types(&mut zip, &options)?;
     write_rels(&mut zip, &options)?;
@@ -18,9 +17,7 @@ pub fn render(doc: &Document, path: &Path) -> Result<()> {
     let mut slide_num = 1u32;
     for block in &doc.blocks {
         let text = match block {
-            Block::Paragraph(inlines) => {
-                inlines.iter().map(|i| i.plain_text()).collect::<String>()
-            }
+            Block::Paragraph(inlines) => inlines.iter().map(|i| i.plain_text()).collect::<String>(),
             Block::Heading { content, .. } => {
                 content.iter().map(|i| i.plain_text()).collect::<String>()
             }
@@ -62,7 +59,7 @@ fn write_content_types(
     zip: &mut zip::ZipWriter<std::fs::File>,
     options: &SimpleFileOptions,
 ) -> Result<()> {
-    zip.start_file("[Content_Types].xml", options.clone())?;
+    zip.start_file("[Content_Types].xml", *options)?;
     zip.write_all(
         br#"<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types">
@@ -75,11 +72,8 @@ fn write_content_types(
     Ok(())
 }
 
-fn write_rels(
-    zip: &mut zip::ZipWriter<std::fs::File>,
-    options: &SimpleFileOptions,
-) -> Result<()> {
-    zip.start_file("_rels/.rels", options.clone())?;
+fn write_rels(zip: &mut zip::ZipWriter<std::fs::File>, options: &SimpleFileOptions) -> Result<()> {
+    zip.start_file("_rels/.rels", *options)?;
     zip.write_all(
         br#"<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">
@@ -93,7 +87,7 @@ fn write_presentation_xml(
     zip: &mut zip::ZipWriter<std::fs::File>,
     options: &SimpleFileOptions,
 ) -> Result<()> {
-    zip.start_file("ppt/presentation.xml", options.clone())?;
+    zip.start_file("ppt/presentation.xml", *options)?;
     zip.write_all(
         br#"<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <p:presentation xmlns:a="http://schemas.openxmlformats.org/drawingml/2006/main" xmlns:p="http://schemas.openxmlformats.org/presentationml/2006/main" xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships">
@@ -111,7 +105,7 @@ fn write_presentation_rels(
     options: &SimpleFileOptions,
     slide_count: u32,
 ) -> Result<()> {
-    zip.start_file("ppt/_rels/presentation.xml.rels", options.clone())?;
+    zip.start_file("ppt/_rels/presentation.xml.rels", *options)?;
     let mut rels = String::from(
         r#"<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">"#,
@@ -134,7 +128,7 @@ fn write_slide(
     text: &str,
 ) -> Result<()> {
     let path = format!("ppt/slides/slide{}.xml", num);
-    zip.start_file(&path, options.clone())?;
+    zip.start_file(&path, *options)?;
 
     let escaped = text
         .replace('&', "&amp;")
@@ -167,7 +161,7 @@ fn write_slide(
     zip.write_all(xml.as_bytes())?;
 
     let rels_path = format!("ppt/slides/_rels/slide{}.xml.rels", num);
-    zip.start_file(&rels_path, options.clone())?;
+    zip.start_file(&rels_path, *options)?;
     zip.write_all(
         br#"<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">

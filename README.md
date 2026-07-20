@@ -28,13 +28,36 @@ flip presentation.pptx slides.md
 
 ## Install
 
+### Option 1: Download a pre-built binary (no Rust needed)
+
+Go to [Releases](https://github.com/MuhammadBaibarsZainUlAbideen/flip/releases) and download the binary for your platform:
+
+| Platform | Download |
+|---|---|
+| **Windows** | `flip-windows-amd64.exe` |
+| **macOS (Apple Silicon)** | `flip-macos-arm64` |
+| **macOS (Intel)** | `flip-macos-amd64` |
+| **Linux (x86_64)** | `flip-linux-amd64` |
+| **Linux (ARM64)** | `flip-linux-arm64` |
+
+Then just run it:
+
+```bash
+# Linux/macOS — move to a directory in your PATH
+chmod +x flip-linux-amd64
+sudo mv flip-linux-amd64 /usr/local/bin/flip
+
+# Windows — rename and add to PATH, or run directly
+rename flip-windows-amd64.exe flip.exe
+```
+
+### Option 2: Install from crates.io (requires Rust)
+
 ```bash
 cargo install flip
 ```
 
 That's it. `flip` is now available globally from any directory.
-
-Or grab a [pre-built binary](https://github.com/flip-cli/flip/releases) for your platform (no Rust needed).
 
 ## Quick Start
 
@@ -183,6 +206,6 @@ MIT -- see [LICENSE](LICENSE) for details.
 
 **Built with Rust**
 
-[GitHub](https://github.com/flip-cli/flip) | [Issues](https://github.com/flip-cli/flip/issues) | [Releases](https://github.com/flip-cli/flip/releases)
+[GitHub](https://github.com/MuhammadBaibarsZainUlAbideen/flip) | [Issues](https://github.com/MuhammadBaibarsZainUlAbideen/flip/issues) | [Releases](https://github.com/MuhammadBaibarsZainUlAbideen/flip/releases)
 
 </div>

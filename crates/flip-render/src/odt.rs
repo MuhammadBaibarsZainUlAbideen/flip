@@ -15,10 +15,7 @@ pub fn render(doc: &Document, path: &Path) -> Result<()> {
         match block {
             Block::Paragraph(inlines) => {
                 let text: String = inlines.iter().map(|i| i.plain_text()).collect();
-                content.push_str(&format!(
-                    "<text:p>{}</text:p>\n",
-                    xml_escape(&text)
-                ));
+                content.push_str(&format!("<text:p>{}</text:p>\n", xml_escape(&text)));
             }
             Block::Heading {
                 level,
@@ -39,10 +36,9 @@ pub fn render(doc: &Document, path: &Path) -> Result<()> {
 
     let file = std::fs::File::create(path)?;
     let mut zip = zip::ZipWriter::new(file);
-    let options = SimpleFileOptions::default()
-        .compression_method(zip::CompressionMethod::Deflated);
+    let options = SimpleFileOptions::default().compression_method(zip::CompressionMethod::Deflated);
 
-    zip.start_file("mimetype", options.clone())?;
+    zip.start_file("mimetype", options)?;
     zip.write_all(b"application/vnd.oasis.opendocument.text")?;
 
     zip.start_file("content.xml", options)?;

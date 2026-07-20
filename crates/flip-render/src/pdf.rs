@@ -350,11 +350,7 @@ pub fn render_bytes(doc: &Document) -> Result<Vec<u8>> {
     }
 
     if !ops.is_empty() || pages.is_empty() {
-        pages.push(PdfPage::new(
-            Mm(PAGE_WIDTH_MM),
-            Mm(PAGE_HEIGHT_MM),
-            ops,
-        ));
+        pages.push(PdfPage::new(Mm(PAGE_WIDTH_MM), Mm(PAGE_HEIGHT_MM), ops));
     }
 
     pdf_doc.with_pages(pages);

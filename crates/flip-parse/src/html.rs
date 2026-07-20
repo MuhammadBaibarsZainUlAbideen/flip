@@ -15,7 +15,7 @@ pub fn parse_html_str(html_content: &str) -> Result<Document> {
         ..Default::default()
     };
 
-    extract_blocks(&html_content, &mut doc);
+    extract_blocks(html_content, &mut doc);
 
     if doc.blocks.is_empty() {
         let text = strip_tags(html_content);

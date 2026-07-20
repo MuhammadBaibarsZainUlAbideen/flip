@@ -40,7 +40,7 @@ pub fn parse(path: &Path) -> Result<Document> {
     if doc.blocks.len() <= 1 {
         doc.push_block(Block::Code {
             language: Some("svg".to_string()),
-            content: content,
+            content,
         });
     }
 

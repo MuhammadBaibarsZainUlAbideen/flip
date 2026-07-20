@@ -83,19 +83,14 @@ fn draw_text_simple(
     }
 }
 
-fn draw_char(
-    img: &mut image::ImageBuffer<image::Rgb<u8>, Vec<u8>>,
-    ch: char,
-    x: i32,
-    y: i32,
-) {
+fn draw_char(img: &mut image::ImageBuffer<image::Rgb<u8>, Vec<u8>>, ch: char, x: i32, y: i32) {
     let pattern = get_char_pattern(ch);
     for (row, &bits) in pattern.iter().enumerate() {
         for col in 0..8 {
             if bits & (0x80 >> col) != 0 {
-                let px = x + col as i32;
+                let px = x + col;
                 let py = y + row as i32;
-                if px >= 0 && px < 800 && py >= 0 && py < 600 {
+                if (0..800).contains(&px) && (0..600).contains(&py) {
                     img.put_pixel(px as u32, py as u32, image::Rgb([51, 51, 51]));
                 }
             }

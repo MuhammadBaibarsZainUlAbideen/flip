@@ -1,20 +1,20 @@
-pub mod pdf;
-pub mod docx;
-pub mod xlsx;
-pub mod pptx;
-pub mod html;
-pub mod markdown;
 pub mod csv_render;
-pub mod text;
-pub mod image_render;
+pub mod docx;
 pub mod epub;
+pub mod html;
+pub mod image_render;
 pub mod json;
-pub mod yaml;
 pub mod latex;
-pub mod odt;
-pub mod ods;
+pub mod markdown;
 pub mod odp;
+pub mod ods;
+pub mod odt;
+pub mod pdf;
+pub mod pptx;
 pub mod svg_render;
+pub mod text;
+pub mod xlsx;
+pub mod yaml;
 
 use std::path::Path;
 

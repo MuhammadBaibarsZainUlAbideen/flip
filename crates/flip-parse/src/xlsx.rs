@@ -39,8 +39,7 @@ pub fn parse(path: &Path) -> Result<Document> {
                                 }
                                 if current.starts_with("/v") {
                                     in_v = false;
-                                    if !texts.last().map_or(false, |t: &String| t.is_empty()) {
-                                    }
+                                    if !texts.last().is_some_and(|t: &String| t.is_empty()) {}
                                 }
                                 in_tag = false;
                                 current.clear();

@@ -13,7 +13,7 @@ pub fn render(doc: &Document, path: &Path) -> Result<()> {
     tex.push_str("\\usepackage{hyperref}\n");
     tex.push_str("\\usepackage{listings}\n");
     tex.push_str("\\usepackage{graphicx}\n");
-    tex.push_str("\n");
+    tex.push('\n');
 
     if let Some(ref title) = doc.metadata.title {
         tex.push_str(&format!("\\title{{{}}}\n", escape_latex(title)));
@@ -53,7 +53,10 @@ fn render_block(tex: &mut String, block: &Block) {
             };
             tex.push_str(&format!("{}{{{}}}\n\n", cmd, escape_latex(&text)));
         }
-        Block::Code { language: _, content } => {
+        Block::Code {
+            language: _,
+            content,
+        } => {
             tex.push_str("\\begin{lstlisting}\n");
             tex.push_str(content);
             tex.push_str("\n\\end{lstlisting}\n\n");
@@ -69,7 +72,10 @@ fn render_block(tex: &mut String, block: &Block) {
         }
         Block::Blockquote(content) => {
             let text: String = content.iter().map(|i| i.plain_text()).collect();
-            tex.push_str(&format!("\\begin{{quote}}\n{}\n\\end{{quote}}\n\n", escape_latex(&text)));
+            tex.push_str(&format!(
+                "\\begin{{quote}}\n{}\n\\end{{quote}}\n\n",
+                escape_latex(&text)
+            ));
         }
         Block::Image { src, alt, .. } => {
             tex.push_str(&format!(
@@ -99,7 +105,10 @@ fn inlines_to_latex(inlines: &[Inline]) -> String {
             Inline::Code(t) => {
                 text.push_str(&format!("\\texttt{{{}}}", escape_latex(t)));
             }
-            Inline::Link { text: link_text, url } => {
+            Inline::Link {
+                text: link_text,
+                url,
+            } => {
                 let display: String = link_text.iter().map(|i| i.plain_text()).collect();
                 text.push_str(&format!(
                     "\\href{{{}}}{{{}}}",

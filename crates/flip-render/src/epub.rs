@@ -52,8 +52,7 @@ pub fn render(doc: &Document, path: &Path) -> Result<()> {
             }
             Block::Blockquote(content) => {
                 let text: String = content.iter().map(|i| i.plain_text()).collect();
-                html_content
-                    .push_str(&format!("<blockquote>{}</blockquote>\n", text));
+                html_content.push_str(&format!("<blockquote>{}</blockquote>\n", text));
             }
             _ => {}
         }
@@ -69,7 +68,9 @@ pub fn render(doc: &Document, path: &Path) -> Result<()> {
         .context("EPUB add_content failed")?;
 
     let mut output = Vec::new();
-    builder.generate(&mut output).context("EPUB generate failed")?;
+    builder
+        .generate(&mut output)
+        .context("EPUB generate failed")?;
     std::fs::write(path, output)?;
 
     Ok(())

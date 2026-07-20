@@ -46,17 +46,21 @@ pub fn render(doc: &Document, path: &std::path::Path) -> Result<()> {
 }
 
 pub fn render_bytes(doc: &Document) -> Result<Vec<u8>> {
-    let mut wtr = csv::WriterBuilder::new().flexible(true).from_writer(Vec::new());
+    let mut wtr = csv::WriterBuilder::new()
+        .flexible(true)
+        .from_writer(Vec::new());
 
     for block in &doc.blocks {
         match block {
             Block::Table { headers, rows } => {
                 for row in headers {
-                    let record: Vec<String> = row.iter().map(|cell| cell_plain_text(cell)).collect();
+                    let record: Vec<String> =
+                        row.iter().map(|cell| cell_plain_text(cell)).collect();
                     wtr.write_record(&record)?;
                 }
                 for row in rows {
-                    let record: Vec<String> = row.iter().map(|cell| cell_plain_text(cell)).collect();
+                    let record: Vec<String> =
+                        row.iter().map(|cell| cell_plain_text(cell)).collect();
                     wtr.write_record(&record)?;
                 }
             }

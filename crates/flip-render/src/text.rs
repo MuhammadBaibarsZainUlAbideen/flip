@@ -14,7 +14,7 @@ pub fn render_bytes(doc: &Document) -> Result<Vec<u8>> {
 
     if let Some(ref title) = doc.metadata.title {
         text.push_str(title);
-        text.push_str("\n");
+        text.push('\n');
         text.push_str(&"=".repeat(title.len()));
         text.push_str("\n\n");
     }

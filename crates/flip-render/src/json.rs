@@ -46,10 +46,7 @@ fn block_to_json(block: &Block) -> Value {
             "content": content,
         }),
         Block::List { ordered, items } => {
-            let item_values: Vec<Value> = items
-                .iter()
-                .map(|item| inlines_to_json(item))
-                .collect();
+            let item_values: Vec<Value> = items.iter().map(|item| inlines_to_json(item)).collect();
             json!({
                 "type": "list",
                 "ordered": ordered,
@@ -60,14 +57,16 @@ fn block_to_json(block: &Block) -> Value {
             let header_values: Vec<Value> = headers
                 .iter()
                 .map(|row| {
-                    let cell_values: Vec<Value> = row.iter().map(|cell| inlines_to_json(cell)).collect();
+                    let cell_values: Vec<Value> =
+                        row.iter().map(|cell| inlines_to_json(cell)).collect();
                     json!(cell_values)
                 })
                 .collect();
             let row_values: Vec<Value> = rows
                 .iter()
                 .map(|row| {
-                    let cell_values: Vec<Value> = row.iter().map(|cell| inlines_to_json(cell)).collect();
+                    let cell_values: Vec<Value> =
+                        row.iter().map(|cell| inlines_to_json(cell)).collect();
                     json!(cell_values)
                 })
                 .collect();

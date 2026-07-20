@@ -16,23 +16,19 @@ pub fn render(doc: &Document, path: &Path) -> Result<()> {
         match block {
             Block::Table { headers, rows } => {
                 for header_row in headers {
-                    let mut col = 1u32;
-                    for cell in header_row {
+                    for (col, cell) in header_row.iter().enumerate() {
                         let text: String = cell.iter().map(|i| i.plain_text()).collect();
-                        let addr = format!("{}{}", col_to_letter(col), row_num);
+                        let addr = format!("{}{}", col_to_letter(col as u32 + 1), row_num);
                         sheet.get_cell_mut(addr).set_value(text);
-                        col += 1;
                     }
                     row_num += 1;
                 }
 
                 for row in rows {
-                    let mut col = 1u32;
-                    for cell in row {
+                    for (col, cell) in row.iter().enumerate() {
                         let text: String = cell.iter().map(|i| i.plain_text()).collect();
-                        let addr = format!("{}{}", col_to_letter(col), row_num);
+                        let addr = format!("{}{}", col_to_letter(col as u32 + 1), row_num);
                         sheet.get_cell_mut(addr).set_value(text);
-                        col += 1;
                     }
                     row_num += 1;
                 }
@@ -71,11 +67,7 @@ fn block_plain_text(block: &Block) -> String {
         Block::Heading { content, .. } => content.iter().map(|i| i.plain_text()).collect(),
         Block::List { items, .. } => items
             .iter()
-            .map(|item| {
-                item.iter()
-                    .map(|i| i.plain_text())
-                    .collect::<String>()
-            })
+            .map(|item| item.iter().map(|i| i.plain_text()).collect::<String>())
             .collect::<Vec<_>>()
             .join("\n"),
         Block::Code { content, .. } => content.clone(),

@@ -29,12 +29,12 @@ pub fn parse(path: &Path) -> Result<Document> {
             if trimmed.is_empty() {
                 continue;
             }
-            if trimmed.starts_with("# ") {
-                doc.push_block(Block::heading(1, &trimmed[2..]));
-            } else if trimmed.starts_with("## ") {
-                doc.push_block(Block::heading(2, &trimmed[3..]));
-            } else if trimmed.starts_with("### ") {
-                doc.push_block(Block::heading(3, &trimmed[4..]));
+            if let Some(rest) = trimmed.strip_prefix("# ") {
+                doc.push_block(Block::heading(1, rest));
+            } else if let Some(rest) = trimmed.strip_prefix("## ") {
+                doc.push_block(Block::heading(2, rest));
+            } else if let Some(rest) = trimmed.strip_prefix("### ") {
+                doc.push_block(Block::heading(3, rest));
             } else if trimmed.starts_with("- ") || trimmed.starts_with("* ") {
                 doc.push_block(Block::List {
                     ordered: false,

@@ -40,12 +40,29 @@ pub enum Format {
 impl Format {
     pub fn all() -> &'static [Format] {
         &[
-            Format::Pdf, Format::Docx, Format::Xlsx, Format::Pptx,
-            Format::Html, Format::Markdown, Format::Csv, Format::Text,
-            Format::Epub, Format::Odt, Format::Ods, Format::Odp,
-            Format::Rtf, Format::Svg, Format::Json, Format::Yaml,
-            Format::Latex, Format::Png, Format::Jpeg, Format::Webp,
-            Format::Gif, Format::Bmp, Format::Tiff,
+            Format::Pdf,
+            Format::Docx,
+            Format::Xlsx,
+            Format::Pptx,
+            Format::Html,
+            Format::Markdown,
+            Format::Csv,
+            Format::Text,
+            Format::Epub,
+            Format::Odt,
+            Format::Ods,
+            Format::Odp,
+            Format::Rtf,
+            Format::Svg,
+            Format::Json,
+            Format::Yaml,
+            Format::Latex,
+            Format::Png,
+            Format::Jpeg,
+            Format::Webp,
+            Format::Gif,
+            Format::Bmp,
+            Format::Tiff,
         ]
     }
 
@@ -224,7 +241,10 @@ impl Document {
                     }
                     out.push('\n');
                 }
-                Block::Code { language: _, content } => {
+                Block::Code {
+                    language: _,
+                    content,
+                } => {
                     out.push_str(content);
                     out.push('\n');
                 }

@@ -1,20 +1,20 @@
-pub mod pdf;
-pub mod docx;
-pub mod xlsx;
-pub mod pptx;
-pub mod html;
-pub mod markdown;
 pub mod csv_parser;
-pub mod text;
-pub mod image;
+pub mod docx;
 pub mod epub;
+pub mod html;
+pub mod image;
 pub mod json;
-pub mod yaml;
-pub mod odt;
-pub mod ods;
+pub mod markdown;
 pub mod odp;
-pub mod svg;
+pub mod ods;
+pub mod odt;
+pub mod pdf;
+pub mod pptx;
 pub mod rtf;
+pub mod svg;
+pub mod text;
+pub mod xlsx;
+pub mod yaml;
 
 use std::path::Path;
 
@@ -43,7 +43,9 @@ pub fn parse_file(path: &Path, format: Format) -> Result<Document> {
             image::parse(path)
         }
         Format::Latex => {
-            anyhow::bail!("LaTeX parsing is not yet supported. Use --from to specify input format.");
+            anyhow::bail!(
+                "LaTeX parsing is not yet supported. Use --from to specify input format."
+            );
         }
     }
     .with_context(|| format!("Failed to parse {} as {}", path.display(), format))

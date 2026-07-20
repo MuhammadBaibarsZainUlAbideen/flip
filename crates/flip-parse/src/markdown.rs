@@ -87,7 +87,11 @@ pub fn parse_markdown_str(content: &str) -> Result<Document> {
                 code_language = match lang {
                     pulldown_cmark::CodeBlockKind::Fenced(l) => {
                         let s = l.to_string();
-                        if s.is_empty() { None } else { Some(s) }
+                        if s.is_empty() {
+                            None
+                        } else {
+                            Some(s)
+                        }
                     }
                     pulldown_cmark::CodeBlockKind::Indented => None,
                 };
@@ -228,8 +232,7 @@ pub fn parse_markdown_str(content: &str) -> Result<Document> {
                 if let Some(Inline::Text(ref mut t)) = current_paragraph.last_mut() {
                     let content = t.clone();
                     *t = String::new();
-                    current_paragraph
-                        .push(Inline::Strikethrough(vec![Inline::Text(content)]));
+                    current_paragraph.push(Inline::Strikethrough(vec![Inline::Text(content)]));
                 }
             }
             Event::Code(code) => {
@@ -243,7 +246,9 @@ pub fn parse_markdown_str(content: &str) -> Result<Document> {
                 });
             }
             Event::End(TagEnd::Link) => {}
-            Event::Start(Tag::Image { dest_url, title, .. }) => {
+            Event::Start(Tag::Image {
+                dest_url, title, ..
+            }) => {
                 doc.push_block(Block::Image {
                     src: dest_url.to_string(),
                     alt: title.to_string(),

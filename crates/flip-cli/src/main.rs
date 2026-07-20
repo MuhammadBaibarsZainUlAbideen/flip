@@ -131,7 +131,9 @@ fn main() -> Result<()> {
         let pb = ProgressBar::new(cli.inputs.len() as u64);
         pb.set_style(
             ProgressStyle::default_bar()
-                .template("{spinner:.green} [{elapsed_precise}] [{bar:40.cyan/blue}] {pos}/{len} ({eta})")
+                .template(
+                    "{spinner:.green} [{elapsed_precise}] [{bar:40.cyan/blue}] {pos}/{len} ({eta})",
+                )
                 .unwrap()
                 .progress_chars("#>-"),
         );
@@ -145,7 +147,11 @@ fn main() -> Result<()> {
 
     for input in &cli.inputs {
         if !input.exists() {
-            eprintln!("{}: {}", "Error".red().bold(), format!("File not found: {}", input.display()));
+            eprintln!(
+                "{}: File not found: {}",
+                "Error".red().bold(),
+                input.display()
+            );
             error_count += 1;
             continue;
         }
@@ -156,9 +162,9 @@ fn main() -> Result<()> {
             Some(f) => f,
             None => {
                 eprintln!(
-                    "{}: {}",
+                    "{}: Cannot detect format for: {}",
                     "Error".red().bold(),
-                    format!("Cannot detect format for: {}", input.display())
+                    input.display()
                 );
                 error_count += 1;
                 continue;
@@ -167,9 +173,8 @@ fn main() -> Result<()> {
 
         let output_path = determine_output_path(input, &cli.out, out_format, input_format)?;
 
-        let output_format = out_format.unwrap_or_else(|| {
-            detect_format(&output_path).unwrap_or(Format::Text)
-        });
+        let output_format =
+            out_format.unwrap_or_else(|| detect_format(&output_path).unwrap_or(Format::Text));
 
         if cli.dry_run {
             println!(
@@ -336,7 +341,7 @@ fn print_formats() {
 }
 
 fn print_matrix() {
-    let formats: Vec<Format> = Format::all().iter().cloned().collect();
+    let formats: Vec<Format> = Format::all().to_vec();
 
     println!("{}", "Conversion matrix:".bold().underline());
     println!();
@@ -347,7 +352,10 @@ fn print_matrix() {
     // Print header
     print!("{:>8}", "");
     for f in &formats {
-        print!(" {:>4}", format!("{:?}", f).chars().take(4).collect::<String>());
+        print!(
+            " {:>4}",
+            format!("{:?}", f).chars().take(4).collect::<String>()
+        );
     }
     println!();
 
@@ -356,8 +364,6 @@ fn print_matrix() {
         for col_format in &formats {
             if row_format == col_format {
                 print!("    {}", "·".dimmed());
-            } else if row_format.is_image() && col_format.is_image() {
-                print!("    {}", "✓".green());
             } else {
                 print!("    {}", "✓".green());
             }

@@ -60,7 +60,5 @@ fn strip_html_tags(html: &str) -> String {
         }
     }
 
-    text.split_whitespace()
-        .collect::<Vec<&str>>()
-        .join(" ")
+    text.split_whitespace().collect::<Vec<&str>>().join(" ")
 }

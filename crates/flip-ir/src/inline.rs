@@ -7,14 +7,8 @@ pub enum Inline {
     Italic(Vec<Inline>),
     Strikethrough(Vec<Inline>),
     Code(String),
-    Link {
-        text: Vec<Inline>,
-        url: String,
-    },
-    Image {
-        alt: String,
-        src: String,
-    },
+    Link { text: Vec<Inline>, url: String },
+    Image { alt: String, src: String },
     Superscript(Vec<Inline>),
     Subscript(Vec<Inline>),
 }

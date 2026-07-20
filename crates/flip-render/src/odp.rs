@@ -8,8 +8,7 @@ use zip::write::SimpleFileOptions;
 pub fn render(doc: &Document, path: &Path) -> Result<()> {
     let file = std::fs::File::create(path)?;
     let mut zip = zip::ZipWriter::new(file);
-    let options = SimpleFileOptions::default()
-        .compression_method(zip::CompressionMethod::Deflated);
+    let options = SimpleFileOptions::default().compression_method(zip::CompressionMethod::Deflated);
 
     write_content_types(&mut zip, &options)?;
     write_rels(&mut zip, &options)?;
@@ -23,10 +22,7 @@ pub fn render(doc: &Document, path: &Path) -> Result<()> {
         match block {
             Block::Paragraph(inlines) => {
                 let text: String = inlines.iter().map(|i| i.plain_text()).collect();
-                content.push_str(&format!(
-                    "<text:p>{}</text:p>\n",
-                    xml_escape(&text)
-                ));
+                content.push_str(&format!("<text:p>{}</text:p>\n", xml_escape(&text)));
             }
             Block::Heading {
                 level,
@@ -56,7 +52,7 @@ fn write_content_types(
     zip: &mut zip::ZipWriter<std::fs::File>,
     options: &SimpleFileOptions,
 ) -> Result<()> {
-    zip.start_file("[Content_Types].xml", options.clone())?;
+    zip.start_file("[Content_Types].xml", *options)?;
     zip.write_all(
         br#"<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types">
@@ -67,11 +63,8 @@ fn write_content_types(
     Ok(())
 }
 
-fn write_rels(
-    zip: &mut zip::ZipWriter<std::fs::File>,
-    options: &SimpleFileOptions,
-) -> Result<()> {
-    zip.start_file("_rels/.rels", options.clone())?;
+fn write_rels(zip: &mut zip::ZipWriter<std::fs::File>, options: &SimpleFileOptions) -> Result<()> {
+    zip.start_file("_rels/.rels", *options)?;
     zip.write_all(
         br#"<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">
