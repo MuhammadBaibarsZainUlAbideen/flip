@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
+import { WebAppSchema } from "@/components/StructuredData";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -27,19 +28,24 @@ export const metadata: Metadata = {
     "free converter",
     "rust converter",
   ],
+  metadataBase: new URL("https://flip.engineer"),
   openGraph: {
     title: "flip — Free Online File Converter",
     description:
       "Convert files between 16+ formats instantly. Markdown, PDF, HTML, CSV, JSON, YAML, DOCX, XLSX — all free.",
-    url: "https://flip.dev",
+    url: "https://flip.engineer",
     siteName: "flip",
     type: "website",
+    locale: "en_US",
   },
   twitter: {
     card: "summary_large_image",
     title: "flip — Free Online File Converter",
     description:
       "Convert files between 16+ formats instantly. Free, fast, and private.",
+  },
+  alternates: {
+    canonical: "https://flip.engineer",
   },
 };
 
@@ -54,6 +60,7 @@ export default function RootLayout({
       className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
     >
       <body className="flex min-h-full flex-col">
+        <WebAppSchema />
         <Header />
         <main className="flex-1">{children}</main>
         <Footer />
