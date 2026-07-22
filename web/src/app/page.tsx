@@ -217,6 +217,57 @@ function FormatGrid() {
   );
 }
 
+function PopularConversions() {
+  return (
+    <section id="conversions" className="border-t border-border bg-white py-24">
+      <div className="mx-auto max-w-6xl px-4 sm:px-6">
+        <div className="text-center">
+          <h2 className="text-4xl font-bold tracking-tight sm:text-5xl">
+            Popular <span className="gradient-text">Conversions</span>
+          </h2>
+          <p className="mx-auto mt-4 max-w-xl text-lg text-muted">
+            The most-used file conversions, powered by flip.
+          </p>
+        </div>
+
+        <div className="mt-16 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+          {popularConversions.map((c) => {
+            const fromFmt = formats.find((f) => f.id === c.from);
+            const toFmt = formats.find((f) => f.id === c.to);
+            return (
+              <Link
+                key={`${c.from}-${c.to}`}
+                href={`/convert/${c.from}-to-${c.to}`}
+                className="group flex items-center gap-4 rounded-xl border border-border bg-background p-4 transition-all hover:border-primary/20 hover:shadow-md hover:shadow-primary/5"
+              >
+                <div className="flex items-center gap-2">
+                  <div
+                    className="flex h-9 w-9 items-center justify-center rounded-lg text-xs font-bold text-white"
+                    style={{ backgroundColor: fromFmt?.color }}
+                  >
+                    {fromFmt?.icon}
+                  </div>
+                  <ArrowRight size={14} className="text-muted" />
+                  <div
+                    className="flex h-9 w-9 items-center justify-center rounded-lg text-xs font-bold text-white"
+                    style={{ backgroundColor: toFmt?.color }}
+                  >
+                    {toFmt?.icon}
+                  </div>
+                </div>
+                <div>
+                  <div className="font-medium group-hover:text-primary transition-colors">{c.label}</div>
+                  <div className="text-sm text-muted">Free online converter</div>
+                </div>
+              </Link>
+            );
+          })}
+        </div>
+      </div>
+    </section>
+  );
+}
+
 function CTA() {
   return (
     <section className="border-t border-border py-24">
@@ -245,6 +296,7 @@ export default function Home() {
       <Hero />
       <Features />
       <FormatGrid />
+      <PopularConversions />
       <CTA />
     </>
   );
